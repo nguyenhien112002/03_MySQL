@@ -1,0 +1,291 @@
+-- SELECT COMAND; CTRL +B ĐỂ FORMAT CÂU LỆNH
+-- TÌM STRING THÌ NÊN DÙNG LIKE, REGULAR EXPRESSION
+-- "_"ĐỂ THAY THỂ KÝ TỰ, TÌM HIỂU VỀ ESCAPE ĐỂ TÌM KÝ TỰ ĐẶT BIỆT 
+
+-- # VIẾT CÂU SELECT TRẢ VỀ
+USE JWAT;
+-- BÀI 1
+SELECT 
+	USER_ID, 
+    LOGIN_NAME,
+    PHONE,
+    EMAIL,
+    COUNTRY
+FROM
+	JWAT.USER
+WHERE 
+	COUNTRY = 'VN';
+-- 
+-- BÀI 1
+SELECT 
+	USER_ID, 
+    LOGIN_NAME,
+    PHONE,
+    EMAIL,
+    COUNTRY,
+    STATE
+FROM
+	JWAT.USER
+WHERE 
+	STATE LIKE '%CALI%';
+    
+    -- BÀI 4
+SELECT 
+	USER_ID, 
+    LOGIN_NAME,
+    PHONE,
+    EMAIL,
+    COUNTRY,
+    FIRST_NAME
+FROM
+	JWAT.USER
+WHERE 
+	FIRST_NAME LIKE '%BEAR%'; 
+-- BÀI 5
+SELECT 
+	USER_ID, 
+    LOGIN_NAME,
+    PHONE,
+    EMAIL,
+    COUNTRY,
+    PHONE
+FROM
+	JWAT.USER
+WHERE 
+	PHONE LIKE '%88'; 
+    
+-- BÀI 6
+SELECT 
+	USER_ID, 
+    LOGIN_NAME,
+    PHONE,
+    EMAIL,
+    COUNTRY,
+    EMAIL
+FROM
+	JWAT.USER
+WHERE 
+	EMAIL LIKE '%@EBAY.COM'; 
+    
+    -- BÀI 7
+SELECT 
+	USER_ID, 
+    LOGIN_NAME,
+    PHONE,
+    EMAIL,
+    COUNTRY,
+    PHONE
+FROM
+	JWAT.USER
+WHERE 
+	PHONE LIKE '_88%'; 
+    
+-- --------------------------------
+-- JOIN----------------------------
+-- --------------------------------
+SELECT
+	P.NAME AS 'PORT NAME'
+    ,P.PORT_ID AS 'PORT ID'
+	,C.NAME AS 'COUNTRY'
+FROM 
+	PORT P 
+    LEFT JOIN COUNTRY C
+    ON P.NAME = C.ID;
+
+-- SUB ID
+
+SELECT 
+    P.NAME 'PORT NAME',
+    P.PORT_ID 'PORT ID',
+    (SELECT 
+            NAME
+        FROM
+            COUNTRY
+        WHERE
+            COUNTRY.ID = P.COUNTRY) 'COUNTRY'
+FROM
+    PORT P;
+    
+--
+SELECT 
+	U.FIRST_NAME 'FIRST NAME'
+    ,U.LAST_NAME 'LAST NAME' 
+	,U.EMAIL 'EMAIL'
+    ,(SELECT 
+            NAME
+        FROM
+            COUNTRY
+        WHERE
+            COUNTRY.ID = U.COUNTRY 
+		)COUNTRY
+FROM
+    USER U
+ORDER BY COUNTRY DESC;
+    
+--
+SELECT 
+	U.FIRST_NAME 'FIRST NAME'
+    ,U.LAST_NAME 'LAST NAME' 
+	,U.EMAIL
+    ,COUNTRY.NAME 'COUNTRY'
+FROM
+    USER U
+INNER JOIN COUNTRY
+WHERE 
+    COUNTRY.ID = U.COUNTRY 
+ORDER BY COUNTRY DESC;
+		
+--
+SELECT 
+	V.SHIP_ID 'SHIP ID'
+    ,S.NAME 'SHIP NAME' 
+	,R.NAME 'ROUTE NAME'
+	,V.START_DATE
+    ,V.END_DATE
+FROM
+    VOYAGE V
+LEFT JOIN SHIP S ON V.SHIP_ID = S.SHIP_ID
+LEFT JOIN ROUTE R ON V.ROUTE_ID = R.ROUTE_ID;
+-- 
+SELECT 
+	V.SHIP_ID 'SHIP ID'
+    ,(
+		SELECT 
+			S.NAME
+		FROM SHIP S
+        WHERE 
+			V.SHIP_ID = S.SHIP_ID
+    ) 'SHIP NAME'
+    ,(
+		SELECT 
+			R.NAME
+		FROM ROUTE R
+        WHERE 
+			V.ROUTE_ID = R.ROUTE_ID
+    ) 'ROUTE NAME' 
+    ,START_DATE
+    ,END_DATE
+FROM
+    VOYAGE V;
+    
+    --
+    
+SELECT * 
+FROM
+	SHIPMENT SM,VOYAGE_SHIPMENT,VOYAGE,ROUTE
+WHERE
+	SM.SHIPMENT_ID = VOYAGE_SHIPMENT.SHIPMENT_ID
+    AND
+    VOYAGE_SHIPMENT.VOYAGE_ID = VOYAGE.VOYAGE_ID
+    AND
+    voyage.ROUTE_ID = ROUTE.ROUTE_ID
+    AND
+    ROUTE.NAME = 'Prado';
+
+--
+SELECT * 
+FROM
+	SHIPMENT SM
+	LEFT JOIN VOYAGE_SHIPMENT VS
+		ON SM.SHIPMENT_ID = VS.SHIPMENT_ID
+    LEFT JOIN VOYAGE V
+		ON VS.VOYAGE_ID = V.VOYAGE_ID
+    LEFT JOIN ROUTE R
+		ON V.ROUTE_ID = R.ROUTE_ID
+  WHERE
+   R.NAME = 'Prado';
+    
+-- 5. Viết câu truy vấn để lấy thông tin của tất cả cách hàng đã có ít nhất 1 đơn hàng
+
+SELECT 
+*
+FROM 
+	user U
+INNER JOIN user_shipment US
+	ON U.USER_ID = US.USER_ID;
+    
+SELECT 
+*
+FROM 
+	user U
+WHERE 
+	EXISTS (
+			SELECT * 
+            FROM  user_shipment US
+			WHERE 
+				U.USER_ID = US.USER_ID);
+--
+SELECT 
+    *
+FROM
+    user U
+WHERE
+    EXISTS (SELECT 
+            COUNT(US.USER_ID) NO_SHIPMENT
+        FROM
+            user_shipment US
+        WHERE
+            U.USER_ID = US.USER_ID
+        GROUP BY US.USER_ID
+        HAVING NO_SHIPMENT > 1);
+    
+    --
+SELECT 
+	COUNT(US.USER_ID) NO_SHIPMENT
+FROM
+	user_shipment US
+WHERE
+	US.USER_ID = '000587bc-a732-489b-bc4e-3e3a9b530efb';
+    
+-- ##	6.	Viết câu truy vấn trả về thông tin của hành trình gồm ID, ngày bắt đầu, ngày kết thúc, tên tuyến, tên tàu,
+-- ##		thông tin các shipment của hành trình gồm ID, cargo content, số lượng teq, tổng giá trị, tình trạng
+SELECT 
+	V.SHIP_ID
+    ,V.START_DATE
+    ,V.END_DATE
+    ,R.NAME
+    ,S.NAME
+FROM
+	voyage V
+    LEFT JOIN ROUTE R
+		ON V.ROUTE_ID = R.ROUTE_ID
+    LEFT JOIN SHIP S
+		ON V.SHIP_ID = S.SHIP_ID
+	LEFT JOIN VOYAGE_SHIPMENT VS
+		ON V.VOYAGE_ID = VS.VOYAGE_ID
+    LEFT JOIN SHIPMENT SH
+		ON VS.SHIPMENT_ID = SH.SHIPMENT_ID;
+
+
+ ---
+ SELECT 
+  C.NAME
+  ,C.ID
+  ,COUNT(P.CODE)
+FROM 
+	COUNTRY C
+    LEFT JOIN PORT P
+    ON C.ID = P.COUNTRY
+GROUP BY
+	C.NAME, C.ID
+HAVING 
+	COUNT(P.CODE) > 70;
+    
+-- NANG CAO
+-- LẤY THÊM THÔNG TIN CẢNG KHỞI HÀNG VÀ CẢNG ĐẾN
+SELECT 
+	V.SHIP_ID
+    ,V.START_DATE
+    ,V.END_DATE
+    ,R.NAME
+    ,S.NAME
+FROM
+	voyage V
+    LEFT JOIN ROUTE R
+		ON V.ROUTE_ID = R.ROUTE_ID
+    LEFT JOIN SHIP S
+		ON V.SHIP_ID = S.SHIP_ID
+	LEFT JOIN VOYAGE_SHIPMENT VS
+		ON V.VOYAGE_ID = VS.VOYAGE_ID
+    LEFT JOIN SHIPMENT SH
+		ON VS.SHIPMENT_ID = SH.SHIPMENT_ID;

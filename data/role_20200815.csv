@@ -1,0 +1,6 @@
+id,email,password,fullname,avatar,role_id
+8,user@gmail.com,$2a$12$bUNTj5SDvRL4Gk048w3dL.R2QOto.SDoZ2RV8FF40uu/OVi1SEfqG,user,,3
+9,admin@gmail.com,$2a$12$w8EVJJt1FC6l60mfa5Py6u/uwGX1xOr9DjJzouQiECHxFQjHLvria,admin,,1
+10,leader@gmail.com,$2a$12$cAsH5X6f76i6J86RsrHrYuYNr/Tc3KvczdD2UT3Uw0uxb8Fewp7MS,leader,,2
+11,admin1@gmail.com,$2a$12$92BQeDvGJgF5a/bVx3Vi.O3CemPUa9wBcpXspxXn/ryLiHDQIcJa2,admin1,assets/uploads/1.JPE,1
+12,admin2@gmail.com,$2a$12$dOmnkN.Jryctoe6PdfDyvO0QVZCrPdjdyZzQVxovvu2Iyr8W9snx2,"admin2 ",assets/uploads/16-Nhung-chu-cho-cuu-ho.jpg,1
